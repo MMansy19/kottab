@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../utils/cn';
+import { motion } from '@/utils/framer-motion';
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-700 disabled:opacity-50 disabled:pointer-events-none",
@@ -42,15 +45,39 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  whileHover?: any;
+  whileTap?: any;
+  animate?: any;
+  initial?: any;
+  transition?: any;
+  variants?: any;
+  as?: React.ElementType;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, rounded, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, rounded, asChild = false, whileHover, whileTap, animate, initial, transition, variants, as, ...props }, ref) => {
+    // Check if any motion props are provided
+    const hasMotionProps = !!(whileHover || whileTap || animate || initial || transition || variants);
+    
+    // Determine which component to use
+    const Component = as || (hasMotionProps ? motion.button : 'button');
+    
+    // Only include motion props if we're using a motion component
+    const componentProps = hasMotionProps ? {
+      ...props,
+      whileHover,
+      whileTap, 
+      animate,
+      initial,
+      transition,
+      variants
+    } : props;
+    
     return (
-      <button
+      <Component
         className={cn(buttonVariants({ variant, size, rounded, className }))}
         ref={ref}
-        {...props}
+        {...componentProps}
       />
     );
   }
